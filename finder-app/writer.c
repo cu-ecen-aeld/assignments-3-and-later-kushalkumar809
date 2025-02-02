@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <errno.h>
 #include <syslog.h>
+#include <string.h>
 
-int main (int argc,char *argv[])
+int main (int argc,char ** argv)
 {
 
 if (argc == 3)
@@ -21,7 +22,7 @@ if (argc == 3)
 		
 		else
 			{
-				fprintf(fptr,argv[2]);
+				fprintf(fptr,"%s",argv[2]);
 				openlog(NULL,0,LOG_USER);
 				syslog(LOG_DEBUG,"Writing %s to %s",argv[3],argv[2]);
 				fclose(fptr);
