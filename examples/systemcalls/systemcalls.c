@@ -69,7 +69,7 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
-	fflush(stdout)
+	fflush(stdout);
 	pid_t kidpid = fork();
 	int execv_stat = execv(command[0],&command[1]);
 	int wait_stat;
