@@ -21,7 +21,7 @@ void* threadfunc(void* thread_param)
     int rc = pthread_mutex_lock((thread_func_args -> mutex));
     if (rc != 0) 
     {
-#define ERROR_LOG(msg,...) printf("threading ERROR: " msg "\n" , ##__VA_ARGS__)
+    ERROR_LOG("Mutex Lock Failed");
     }
     
     usleep((thread_func_args -> wait_to_release_ms) * 1000);
@@ -30,7 +30,7 @@ void* threadfunc(void* thread_param)
     
     if (rc != 0) 
     {
-#define ERROR_LOG(msg,...) printf("threading ERROR: " msg "\n" , ##__VA_ARGS__)
+    ERROR_LOG("Mutex Unlock Failed");
     }
     
     return thread_param;
@@ -56,7 +56,7 @@ bool start_thread_obtaining_mutex(pthread_t *thread, pthread_mutex_t *mutex,int 
     
     int rc = pthread_create(thread,NULL,threadfunc,(void*)data);
     if (rc != 0) {
-	#define ERROR_LOG(msg,...) printf("threading ERROR: " msg "\n" , ##__VA_ARGS__)
+	ERROR_LOG("Not able to create thread");
         free(data); // Free allocated memory on error
         data->thread_complete_success=false;
         return data->thread_complete_success;
