@@ -106,7 +106,7 @@ openlog(NULL,0,LOG_INFO);
 syslog(LOG_INFO,"SOCKET OPEN SUCCESS");
 closelog();
 
-if (listen(socketfd,0) == -1)
+if (listen(socketfd,10) == -1)
 {
 int errnum = errno;
 char *errmesg = strerror(errno);
