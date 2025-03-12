@@ -24,7 +24,7 @@ struct addrinfo *servinfo;
 
 void signal_handler(int signo) {
     if (signo == SIGINT || signo == SIGTERM) {
-        printf("Caught signal, exiting\n");
+        printf("Caught signal, exiting  !!! \n");
         if (acceptedfd > 0)
     	{
             close(acceptedfd);
@@ -45,7 +45,6 @@ void signal_handler(int signo) {
 
 int main (int argc,char **argv)
 {
-
 signal(SIGINT, signal_handler);
 signal(SIGTERM, signal_handler);
 
@@ -180,10 +179,18 @@ acceptedfd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len)
    		   {
    		   	openlog(NULL,0,LOG_INFO);
 			syslog(LOG_INFO,"Accepted connection from %s", service);
-			printf("Accepted connection from %s", service);
+			printf("\nAccepted connection from %s\n", service);
 			fflush(stdout);
 			closelog();
       		   }
+      		 if(bytes_read == 0)
+      		 {
+      		    	openlog(NULL,0,LOG_INFO);
+			syslog(LOG_INFO,"Closed connection from %s", service);
+			printf("\nClosed connection from %s\n", service);
+			fflush(stdout);
+			closelog();
+      		 }
 		
 			char *newline = memchr(buffer,'\n',bytes_read);
 			if (newline)
@@ -195,7 +202,6 @@ acceptedfd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len)
                     		perror("Error opening file");
                     	continue;
 			}
-			
 			write(fd, buffer, line_length);
                 	close(fd);
                 	
