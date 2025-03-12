@@ -19,6 +19,8 @@ volatile sig_atomic_t keep_running = 1;
 int socketfd;
 int acceptedfd;
 const char *filename = "/var/tmp/aesdsocketdata";
+struct addrinfo serv;
+struct addrinfo *servinfo;
 
 void signal_handler(int signo) {
     if (signo == SIGINT || signo == SIGTERM) {
@@ -33,6 +35,10 @@ void signal_handler(int signo) {
     	}
         keep_running = 0;
         remove(filename);
+        shutdown(socketfd, SHUT_RDWR);
+	close(socketfd);
+	freeaddrinfo(servinfo);
+	closelog();
     }
 }
 
@@ -49,8 +55,7 @@ int daemon_mode = 0;
     }
     
 
-struct addrinfo serv;
-struct addrinfo *servinfo;
+
 
 memset (&serv, 0, sizeof(serv));
 
@@ -162,19 +167,24 @@ acceptedfd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len)
 	
 	else 
 	{
-		int s;
+
+		ssize_t bytes_read;
+		char buffer[BUFFER_SIZE];
+		while ((bytes_read = read(acceptedfd, buffer, sizeof(buffer))) > 0) 
+		{
+		
+				int s;
 		char host[NI_MAXHOST], service[NI_MAXSERV];
 		s=getnameinfo((struct sockaddr *)&client_addr,client_addr_len, host, NI_MAXHOST,service, NI_MAXSERV, NI_NUMERICSERV);
 		if(s==0)
    		   {
    		   	openlog(NULL,0,LOG_INFO);
 			syslog(LOG_INFO,"Accepted connection from %s", service);
+			printf("Accepted connection from %s", service);
+			fflush(stdout);
 			closelog();
       		   }
-		ssize_t bytes_read;
-		char buffer[BUFFER_SIZE];
-		while ((bytes_read = read(acceptedfd, buffer, sizeof(buffer))) > 0) 
-		{
+		
 			char *newline = memchr(buffer,'\n',bytes_read);
 			if (newline)
 			{
@@ -219,10 +229,6 @@ acceptedfd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len)
 	}		
 
 }
-	shutdown(socketfd, SHUT_RDWR);
-	close(socketfd);
-	freeaddrinfo(servinfo);
-	closelog();
 	return 0;
 
 }
