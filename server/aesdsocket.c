@@ -55,12 +55,11 @@ int daemon_mode = 0;
     
 
 
-
 memset (&serv, 0, sizeof(serv));
 
 serv.ai_family = AF_INET;
 serv.ai_socktype = SOCK_STREAM;
-serv.ai_flags = 0;
+serv.ai_flags = AI_PASSIVE;
 serv.ai_protocol = 0;
 
 
@@ -88,7 +87,8 @@ freeaddrinfo(servinfo);
 return -1;
 }
 
-
+int opt = 1;
+setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
 if (bind(socketfd,(*servinfo).ai_addr, (*servinfo).ai_addrlen) !=0)
 {
@@ -111,6 +111,7 @@ int errnum = errno;
 char *errmesg = strerror(errno);
 openlog(NULL,0,LOG_ERR);
 syslog(LOG_ERR,"Listen to port %s failed (%d) : %s",port ,errnum ,errmesg);
+printf("Listen to port %s failed (%d) : %s",port ,errnum ,errmesg);
 closelog();
 freeaddrinfo(servinfo);
 return -1;
@@ -118,6 +119,7 @@ return -1;
 
 openlog(NULL,0,LOG_INFO);
 syslog(LOG_INFO,"LISTENING TO PORT %s",port);
+printf("LISTENING TO PORT %s",port);
 closelog();
 
 
@@ -161,6 +163,7 @@ acceptedfd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len)
 	{
 	openlog(NULL,0,LOG_INFO);
 	syslog(LOG_INFO,"Connection accept failed");
+	printf("Connection accept failed\n");
 	closelog();
 	}
 	
@@ -178,8 +181,8 @@ acceptedfd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len)
 		if(s==0)
    		   {
    		   	openlog(NULL,0,LOG_INFO);
-			syslog(LOG_INFO,"Accepted connection from %s", service);
-			printf("\nAccepted connection from %s\n", service);
+			syslog(LOG_INFO,"Accepted connection from %s", host);
+			printf("\nAccepted connection from %s\n", host);
 			fflush(stdout);
 			closelog();
       		   }
